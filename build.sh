@@ -12,6 +12,8 @@ echo "Downloading kernel sources..."
 wget -c -P sources http://www.kernel.org/pub/linux/kernel/v2.6/${KERNEL}.tar.bz2
 echo "Downloading busybox sources..."
 wget -c -P sources http://busybox.net/downloads/${BUSYBOX}.tar.bz2
+echo "Downloading qemu from trunk..."
+git clone git://git.qemu.org/qemu.git
 
 if [ ! -e sources ]; then
   mkdir sources
@@ -54,7 +56,8 @@ if [ ! -e .${KERNEL}.build ]; then
   echo "* Patching ${KERNEL}"
   echo "******************************************************************"
   cd ${KERNEL}
-  patch -p1 < ../patch/linux-versatilepb_config.patch 
+  # Used new configure for versatile_defconfig
+  cp ../configs/versatile_qemu_defconfig arch/arm/configs/versatile_defconfig
   echo "******************************************************************"
   echo "* Configuring ${KERNEL}"
   echo "******************************************************************"
@@ -78,16 +81,20 @@ if [ ! -e .${BUSYBOX}.build ]; then
   echo "* Patching ${BUSYBOX}"
   echo "******************************************************************"
   cd ${BUSYBOX}
-  patch -p1 < ../patch/BUSYBOX_config.patch 
+  # Used new configure for busybox
+  cp ../configs/busybox_qemu_defconfig .config
   echo "******************************************************************"
   echo "* Configuring ${BUSYBOX}"
   echo "******************************************************************"
-  make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- defconfig
+  #make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- all
   echo "******************************************************************"
   echo "* Building ${BUSYBOX}"
   echo "******************************************************************"
+  make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- all
   make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- install || exit
   cd _install
+  mkdir proc sys dev etc etc/init.d
+  cp ../../rootfs/rcS etc/init.d
   find . | cpio -o --format=newc > ../rootfs.img
   cd ..
   gzip -c rootfs.img > rootfs.img.gz
@@ -101,7 +108,7 @@ echo "******************************************************************"
 echo "* Building flash.bin"
 echo "******************************************************************"
 cd images
-if [ ! -e flash.bin ]; then
+if [ -e flash.bin ]; then
   rm -rf flash.bin
 fi
 
