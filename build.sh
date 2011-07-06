@@ -13,7 +13,13 @@ wget -c -P sources http://www.kernel.org/pub/linux/kernel/v2.6/${KERNEL}.tar.bz2
 echo "Downloading busybox sources..."
 wget -c -P sources http://busybox.net/downloads/${BUSYBOX}.tar.bz2
 echo "Downloading qemu from trunk..."
-git clone git://git.qemu.org/qemu.git
+if [ ! -e git ]; then
+  git clone git://git.qemu.org/qemu.git
+else
+  cd git
+  git pull
+  cd ..
+fi
 
 if [ ! -e sources ]; then
   mkdir sources
@@ -32,7 +38,7 @@ if [ ! -e .${BOOTLOADER}.build ]; then
   echo "* Patching ${BOOTLOADER}"
   echo "******************************************************************"
   cd ${BOOTLOADER}
-  patch -p1 < ../patch/u-boot-2010.03-ramdisk.patch 
+  patch -p1 < ../patch/${BOOTLOADER}-ramdisk.patch 
   echo "******************************************************************"
   echo "* Configuring ${BOOTLOADER}"
   echo "******************************************************************"
@@ -112,15 +118,19 @@ if [ -e flash.bin ]; then
   rm -rf flash.bin
 fi
 
+#
 mkimage -A arm -C none -O linux -T kernel -d zImage -a 0x00010000 -e 0x00010000 zImage.uimg
 
+#
 mkimage -A arm -C none -O linux -T ramdisk -d rootfs.img.gz -a 0x00800000 -e 0x00800000 rootfs.uimg
 
+#
 dd if=/dev/zero of=flash.bin bs=1 count=6M
 dd if=u-boot.bin of=flash.bin conv=notrunc bs=1
 dd if=zImage.uimg of=flash.bin conv=notrunc bs=1 seek=2M
 dd if=rootfs.uimg of=flash.bin conv=notrunc bs=1 seek=4M
 
 #/home/barry/source/qemu/arm-softmmu/qemu-system-arm -M versatilepb -m 128M -kernel flash.bin -serial stdio
-#/home/barry/study/qemu/qemu/arm-softmmu/qemu-system-arm -M versatilepb -m 128M -kernel flash.bin -serial stdio
+#/home/barry/study/qemu/qemu/arm-softmmu/qemu-system-arm -M versatilepb -m 128M \ 
+# -kernel flash.bin -serial stdio -s -S
 
