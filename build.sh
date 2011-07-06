@@ -115,4 +115,5 @@ dd if=zImage.uimg of=flash.bin conv=notrunc bs=1 seek=2M
 dd if=rootfs.uimg of=flash.bin conv=notrunc bs=1 seek=4M
 
 #/home/barry/source/qemu/arm-softmmu/qemu-system-arm -M versatilepb -m 128M -kernel flash.bin -serial stdio
+#/home/barry/study/qemu/qemu/arm-softmmu/qemu-system-arm -M versatilepb -m 128M -kernel flash.bin -serial stdio
 
