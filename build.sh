@@ -16,13 +16,9 @@ wget -c -P sources http://busybox.net/downloads/${BUSYBOX}.tar.bz2
 if [ ! -e sources ]; then
   mkdir sources
 fi
-if [ ! -e build ]; then
-  mkdir build
-fi
 if [ ! -e images ]; then
   mkdir images
 fi
-
 
 # Build bootloader
 if [ ! -e .${BOOTLOADER}.build ]; then
