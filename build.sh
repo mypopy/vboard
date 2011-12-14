@@ -13,10 +13,10 @@ wget -c -P sources http://www.kernel.org/pub/linux/kernel/v2.6/${KERNEL}.tar.bz2
 echo "Downloading busybox sources..."
 wget -c -P sources http://busybox.net/downloads/${BUSYBOX}.tar.bz2
 echo "Downloading qemu from trunk..."
-if [ ! -e git ]; then
+if [ ! -e qemu ]; then
   git clone git://git.qemu.org/qemu.git
 else
-  cd git
+  cd qemu
   git pull
   cd ..
 fi
